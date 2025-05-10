@@ -1,0 +1,17 @@
+<resources>
+    <string name="app_name">Scrollable List</string>
+
+    <string name="cirrostratus_desc">Sirostratus (Inggris: Cirrostratus) merupakan awan yang berbentuk serabut
+        dengan jalur-jalur yang tipis atau cadar atau mirip kerudung,
+        halus berwarna keputih-putihan dan mampu menutup sebagian atau seluruh langit
+    </string>
+    <string name="altostratus_desc">Altostratus (As) adalah awan yang berbentuk lembaran dan sering berbentuk satu struktur berserat.
+    </string>
+    <string name="cirrocumulus_desc">Awan sirokumulus (Bahasa Inggris: Cirrocumulus cloud) adalah salah satu dari tiga genus utama awan tinggi.
+        Awan sirokumulus adalah awan berlapis yang ditemukan tinggi di troposfer (5–15 km)
+    </string>
+    <string name="cumulonimbus_desc">Awan kumulonimbus (disingkat Cb) adalah sebuah awan vertikal menjulang (keluarga D2)
+        yang sangat tinggi, padat, dan terlibat dalam badai petir dan cuaca dingin lainnya.
+    </string>
+    <string name="cumulus_desc">Awan kumulus adalah awan putih yang memiliki dasar datar yang terlihat sangat lembut, empuk, dan berbulu.</string>
+</resources>
