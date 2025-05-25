@@ -1,0 +1,37 @@
+package com.example.scrollablelist
+
+import android.util.Log
+import androidx.lifecycle.ViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+
+class ItemViewModel : ViewModel() {
+
+    private val _itemList = MutableStateFlow<List<ItemData>>(emptyList())
+    val itemList = _itemList.asStateFlow()
+
+    private val _selectedItem = MutableStateFlow<ItemData?>(null)
+    val selectedItem = _selectedItem.asStateFlow()
+
+    init {
+        val itemList = listOf(
+            ItemData("Cirrostratus", R.drawable.cirrostratus, "https://id.wikipedia.org/wiki/Awan_sirostratus", R.string.cirrostratus_desc),
+            ItemData("Cirrocumulus", R.drawable.cirrocumulus, "https://id.wikipedia.org/wiki/Awan_sirokumulus", R.string.cirrocumulus_desc),
+            ItemData("Cumulus", R.drawable.cumulus, "https://id.wikipedia.org/wiki/Awan_kumulus", R.string.cumulus_desc),
+            ItemData("Altostratus", R.drawable.altostratus, "https://id.wikipedia.org/wiki/Awan_altostratus", R.string.altostratus_desc),
+            ItemData("Cumulonimbus", R.drawable.cumulonimbus, "https://id.wikipedia.org/wiki/Awan_kumulonimbus", R.string.cumulonimbus_desc),
+        )
+
+        _itemList.value = itemList
+        Log.d("ItemViewModel", "Item list initialized with ${itemList.size} items")
+
+        itemList.forEach { item ->
+            Log.d("ItemViewModel", "Item dimuat: ${item.name}")
+        }
+    }
+
+    fun setSelectedItem(item: ItemData) {
+        _selectedItem.value = item
+        Log.d("ItemViewModel", "Selected item: ${item.name}")
+    }
+}
