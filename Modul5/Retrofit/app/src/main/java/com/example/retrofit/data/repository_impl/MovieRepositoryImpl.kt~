@@ -1,0 +1,71 @@
+package com.example.retrofit.data.repository_impl
+
+import com.example.retrofit.common.data.ApiMapper
+import com.example.retrofit.common.data.MovieDetailMapper
+import com.example.retrofit.data.local.dao.MovieDao
+import com.example.retrofit.data.local.mapper.toDomain
+import com.example.retrofit.data.local.mapper.toEntity
+import com.example.retrofit.data.remote.api.MovieApiService
+import com.example.retrofit.data.remote.models.MovieDto
+import com.example.retrofit.domain.models.Movie
+import com.example.retrofit.domain.repository.MovieRepository
+import com.example.retrofit.utils.Response
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.flow
+import com.example.retrofit.domain.models.MovieDetail
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+
+class MovieRepositoryImpl(
+    private val movieApiService: MovieApiService,
+    private val apiMapper: ApiMapper<List<Movie>, MovieDto>,
+    private val movieDetailMapper: MovieDetailMapper,
+    private val movieDao: MovieDao
+) : MovieRepository {
+
+    // ✅ OFFLINE-FIRST untuk movie list
+    override fun fetchDiscoverMovie(): Flow<Response<List<Movie>>> = flow {
+        emit(Response.Loading())
+
+        // 1. SELALU emit cached data dulu (OFFLINE-FIRST principle)
+        val cachedMovies = movieDao.getAllMovies().map { it.toDomain() }
+        if (cachedMovies.isNotEmpty()) {
+            emit(Response.Success(cachedMovies))
+        }
+
+        // 2. Kemudian fetch dari network untuk update
+        try {
+            val movieDto = movieApiService.fetchDiscoverMovie()
+            val movies = apiMapper.mapToDomain(movieDto)
+
+            // 3. Update cache di background
+            withContext(Dispatchers.IO) {
+                movieDao.clearAll()
+                movieDao.insertMovies(movies.map { it.toEntity() })
+            }
+
+            // 4. Emit fresh data (akan menggantikan cached data di UI)
+            emit(Response.Success(movies))
+
+        } catch (e: Exception) {
+            // 5. Jika network gagal tapi ada cache, biarkan cache yang tampil
+            // Jika tidak ada cache sama sekali, emit error
+            if (cachedMovies.isEmpty()) {
+                emit(Response.Error(e))
+            }
+            // Jika ada cache, user sudah melihat data cached, jadi tidak perlu emit error
+        }
+    }
+
+    // ✅ ONLINE-FIRST untuk movie detail (sementara, nanti bisa di-cache)
+    override fun fetchMovie(movieId: Int): Flow<Response<MovieDetail>> = flow {
+        emit(Response.Loading())
+        try {
+            val dto = movieApiService.fetchMovie(movieId)
+            val movie = movieDetailMapper.mapMovieDetailDtoToDomain(dto)
+            emit(Response.Success(movie))
+        } catch (e: Exception) {
+            emit(Response.Error(e))
+        }
+    }
+}
